@@ -1,5 +1,7 @@
 package fr.isen.guillaume.thegreatestcocktailapp
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,35 +33,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import fr.isen.guillaume.thegreatestcocktailapp.model.Drink
 import fr.isen.guillaume.thegreatestcocktailapp.model.DrinksResponse
 import fr.isen.guillaume.thegreatestcocktailapp.model.RetrofitClient
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
+import fr.isen.guillaume.thegreatestcocktailapp.ui.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrinksScreen(
     categoryName: String,
-    navController: NavController
+    modifier: Modifier = Modifier,
+    context: Context,
+    bottomBar: @Composable () -> Unit = {}
 ) {
-    val decodedCategoryName = URLDecoder.decode(categoryName, StandardCharsets.UTF_8.toString())
     var drinksResponse by remember { mutableStateOf<DrinksResponse?>(null) }
 
-    LaunchedEffect(decodedCategoryName) {
+    LaunchedEffect(categoryName) {
         try {
-            drinksResponse = RetrofitClient.apiService.getDrinksByCategory(decodedCategoryName)
+            drinksResponse = RetrofitClient.apiService.getDrinksByCategory(categoryName)
         } catch (e: Exception) {
             // Handle error
         }
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
-            TopAppBar(title = { Text("Drinks for $decodedCategoryName") })
-        }
+            TopAppBar(title = { Text("Drinks for $categoryName") })
+        },
+        bottomBar = bottomBar
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             if (drinksResponse == null) {
@@ -75,7 +78,11 @@ fun DrinksScreen(
                 ) {
                     items(drinks) { drink ->
                         DrinkItem(drink = drink) {
-                            navController.navigate("detail/${drink.id}")
+                            val intent = Intent(context, DetailActivity::class.java).apply {
+                                putExtra("drinkId", drink.id)
+                                putExtra("from", Screen.List.route)
+                            }
+                            context.startActivity(intent)
                         }
                     }
                 }

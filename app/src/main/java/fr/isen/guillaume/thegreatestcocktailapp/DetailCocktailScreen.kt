@@ -44,7 +44,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailCocktailScreen(drinkId: String) {
+fun DetailCocktailScreen(
+    drinkId: String,
+    bottomBar: @Composable () -> Unit = {}
+) {
     var cocktailDetail by remember { mutableStateOf<CocktailDetail?>(null) }
     val context = LocalContext.current
 
@@ -91,7 +94,8 @@ fun DetailCocktailScreen(drinkId: String) {
                 }
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = bottomBar
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             if (cocktailDetail == null) {

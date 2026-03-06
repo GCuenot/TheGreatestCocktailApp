@@ -1,5 +1,7 @@
 package fr.isen.guillaume.thegreatestcocktailapp
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,24 +31,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import fr.isen.guillaume.thegreatestcocktailapp.model.CocktailDetail
 import fr.isen.guillaume.thegreatestcocktailapp.model.FavoritesManager
 import fr.isen.guillaume.thegreatestcocktailapp.model.RetrofitClient
+import fr.isen.guillaume.thegreatestcocktailapp.ui.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
-    navController: NavController
+    context: Context,
+    bottomBar: @Composable () -> Unit = {}
 ) {
     var favoriteCocktails by remember { mutableStateOf<List<CocktailDetail>?>(null) }
-    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         val favoriteIds = FavoritesManager.getFavoriteIds(context)
@@ -65,12 +66,14 @@ fun FavoritesScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(title = { Text("Favorite Cocktails") })
-        }
+        },
+        bottomBar = bottomBar
     ) { innerPadding ->
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
@@ -88,7 +91,11 @@ fun FavoritesScreen(
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(favoriteCocktails!!) { cocktail ->
                             FavoriteItem(cocktail = cocktail) {
-                                navController.navigate("detail/${cocktail.id}")
+                                val intent = Intent(context, DetailActivity::class.java).apply {
+                                    putExtra("drinkId", cocktail.id)
+                                    putExtra("from", Screen.Favorites.route)
+                                }
+                                context.startActivity(intent)
                             }
                         }
                     }

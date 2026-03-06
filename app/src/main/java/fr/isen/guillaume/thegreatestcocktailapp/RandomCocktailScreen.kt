@@ -33,7 +33,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RandomCocktailScreen() {
+fun RandomCocktailScreen(
+    modifier: Modifier = Modifier,
+    bottomBar: @Composable () -> Unit = {}
+) {
     var cocktailDetail by remember { mutableStateOf<CocktailDetail?>(null) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -59,6 +62,7 @@ fun RandomCocktailScreen() {
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text(cocktailDetail?.name ?: "Random Cocktail") },
@@ -89,7 +93,8 @@ fun RandomCocktailScreen() {
                 }
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = bottomBar
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             if (cocktailDetail == null) {

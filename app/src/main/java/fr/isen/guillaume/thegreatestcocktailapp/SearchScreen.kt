@@ -1,5 +1,7 @@
 package fr.isen.guillaume.thegreatestcocktailapp
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,14 +30,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import fr.isen.guillaume.thegreatestcocktailapp.model.Drink
 import fr.isen.guillaume.thegreatestcocktailapp.model.RetrofitClient
+import fr.isen.guillaume.thegreatestcocktailapp.ui.Screen
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(navController: NavController) {
+fun SearchScreen(
+    modifier: Modifier = Modifier,
+    context: Context,
+    bottomBar: @Composable () -> Unit = {}
+) {
     var searchQuery by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<Drink>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
@@ -59,9 +65,11 @@ fun SearchScreen(navController: NavController) {
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(title = { Text("Search Cocktails") })
-        }
+        },
+        bottomBar = bottomBar
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -97,7 +105,11 @@ fun SearchScreen(navController: NavController) {
                     ) {
                         items(searchResults) { drink ->
                             DrinkItem(drink = drink) {
-                                navController.navigate("detail/${drink.id}")
+                                val intent = Intent(context, DetailActivity::class.java).apply {
+                                    putExtra("drinkId", drink.id)
+                                    putExtra("from", Screen.Search.route)
+                                }
+                                context.startActivity(intent)
                             }
                         }
                     }
