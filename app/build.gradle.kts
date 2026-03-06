@@ -5,16 +5,12 @@ plugins {
 
 android {
     namespace = "fr.isen.guillaume.thegreatestcocktailapp"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "fr.isen.guillaume.thegreatestcocktailapp"
         minSdk = 28
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -51,6 +47,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // Retrofit & Gson
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,24 +36,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import fr.isen.guillaume.thegreatestcocktailapp.model.CocktailDetail
 import fr.isen.guillaume.thegreatestcocktailapp.model.FavoritesManager
-import fr.isen.guillaume.thegreatestcocktailapp.viewmodel.DetailCocktailViewModel
+import fr.isen.guillaume.thegreatestcocktailapp.model.RetrofitClient
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailCocktailScreen(
-    drinkId: String,
-    detailViewModel: DetailCocktailViewModel = viewModel()
-) {
-    val cocktailDetail by detailViewModel.cocktailDetail.collectAsState()
+fun DetailCocktailScreen(drinkId: String) {
+    var cocktailDetail by remember { mutableStateOf<CocktailDetail?>(null) }
     val context = LocalContext.current
 
     LaunchedEffect(drinkId) {
-        detailViewModel.fetchCocktailDetail(drinkId)
+        try {
+            cocktailDetail = RetrofitClient.apiService.getCocktailDetail(drinkId).details.firstOrNull()
+        } catch (e: Exception) {
+            // Handle error
+        }
     }
 
     val snackbarHostState = remember { SnackbarHostState() }

@@ -17,7 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,21 +26,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import fr.isen.guillaume.thegreatestcocktailapp.model.CocktailDetail
 import fr.isen.guillaume.thegreatestcocktailapp.model.FavoritesManager
-import fr.isen.guillaume.thegreatestcocktailapp.viewmodel.RandomCocktailViewModel
+import fr.isen.guillaume.thegreatestcocktailapp.model.RetrofitClient
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RandomCocktailScreen(randomCocktailViewModel: RandomCocktailViewModel = viewModel()) {
-    val cocktailDetail by randomCocktailViewModel.cocktailDetail.collectAsState()
+fun RandomCocktailScreen() {
+    var cocktailDetail by remember { mutableStateOf<CocktailDetail?>(null) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     var isFavorite by remember(cocktailDetail) {
         mutableStateOf(cocktailDetail?.id?.let { FavoritesManager.isFavorite(context, it) } ?: false)
+    }
+
+    fun fetchRandom() {
+        scope.launch {
+            cocktailDetail = null
+            try {
+                cocktailDetail = RetrofitClient.apiService.getRandomCocktail().details.firstOrNull()
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        fetchRandom()
     }
 
     Scaffold(
@@ -68,7 +83,7 @@ fun RandomCocktailScreen(randomCocktailViewModel: RandomCocktailViewModel = view
                             )
                         }
                     }
-                    IconButton(onClick = { randomCocktailViewModel.fetchRandomCocktail() }) {
+                    IconButton(onClick = { fetchRandom() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Get new random cocktail")
                     }
                 }

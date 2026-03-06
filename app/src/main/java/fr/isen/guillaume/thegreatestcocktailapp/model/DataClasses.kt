@@ -11,9 +11,9 @@ data class Category(
     @SerializedName("strCategory") val name: String
 )
 
-// For filter.php?c=CATEGORY
+// For filter.php?c=CATEGORY and search.php
 data class DrinksResponse(
-    @SerializedName("drinks") val drinks: List<Drink>
+    @SerializedName("drinks") val drinks: List<Drink>?
 )
 
 data class Drink(
